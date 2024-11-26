@@ -13,6 +13,6 @@ docker pull sultanmukashev/sdu-bot
 ```
 Run container using your own OpenAI account API key 
 ```
-docker run -it --rm -e OPENAI_API_KEY=<твой апи ключ от гпт> sdu-bot:latest
+docker run -it --rm -e OPENAI_API_KEY=<твой апи ключ от гпт> sultanmukashev/sdu-bot:latest
 ```
 Work with model in command promt.
