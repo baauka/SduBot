@@ -1,4 +1,5 @@
 import asyncio
+import os
 from create_bot import bot, dp, scheduler, pg_db
 from aiogram import Router, F
 from aiogram.types import Message
@@ -6,38 +7,30 @@ from handlers.start import start_router
 import logging
 from utils.gpt_handler import GPTHandler
 from decouple import config
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 # GPT-related configurations
-GPT_API_KEY = config('GPT_API')
-EMBEDDING_MODEL = "text-embedding-ada-002"
-CHAT_MODEL = "ft:gpt-4o-mini-2024-07-18:personal:sdubot:AJHQiny8"
-SDU_PLANNER_PATH = "telegram_bot/RAG_data/sdu_planned_embedded.csv"
-SDU_LINKS_PATH = "telegram_bot/RAG_data/links_dataset_embedded.csv"
+EMBEDDING_MODEL = config('EMBEDDING_MODEL')
+CHAT_MODEL = config('CHAT_MODEL')
+SYSTEM_PROMPT = config('SYSTEM_PROMPT')
+CONTEXT_Q__SYSTEM_PROMPT = config('CONTEXT_Q__SYSTEM_PROMPT')
 
-system_prompt = """You are a helpful bot assistant that helps students find the answers 
-to questions related to SDU university. Please follow these guidelines:
-
-1. If a student greets you, respond warmly and return the greeting.
-
-2. If you cannot find an answer in the provided articles or are unsure about the answer, 
-draw from your own knowledge related to SDU. If you lack sufficient information, kindly 
-suggest that the student visit the Advising Desk for assistance.
-
-3. For questions that involve emotional or personal issues, respond with empathy and 
-understanding. Acknowledge their feelings and provide gentle support.
-
-4. Maintain strict confidentiality regarding any personal information shared by students.
-
-5. If a question is unrelated to the university or its services, politely remind the 
-student that questions should pertain to SDU.
-
-Be informative, supportive, and humanized in your responses."""
+# Vector database path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+pdf_dir = os.path.join(current_dir, "db_pdf")
+persistent_directory = os.path.join(current_dir, "db", "chroma_db_with_metadata")
 
 gpt_handler = GPTHandler(
-    api_key=GPT_API_KEY,
+    persistent_directory=persistent_directory,
+    pdf_directory=pdf_dir,
     embedding_model=EMBEDDING_MODEL,
     chat_model=CHAT_MODEL,
-    system_prompt=system_prompt,
+    system_prompt=SYSTEM_PROMPT,
+    contextualization_prompt=CONTEXT_Q__SYSTEM_PROMPT
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -58,16 +51,6 @@ async def main():
         await pg_db.connect()
     except Exception as e:
         logger.error(f"Failed to connect to the database: {e}")
-        return
-
-    # Load embeddings
-    try:
-        global concatenated
-        concatenated = gpt_handler.load_embeddings(SDU_PLANNER_PATH, SDU_LINKS_PATH)
-        logger.info("Embeddings loaded successfully.")
-    except Exception as e:
-        logger.error(f"Failed to load embeddings: {e}")
-        await pg_db.disconnect()
         return
 
     # Add routers
