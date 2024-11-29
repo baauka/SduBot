@@ -32,5 +32,8 @@ COPY --from=builder /usr/local/lib/python3.12 /usr/local/lib/python3.12
 COPY --from=builder /app /app
 
 # Command to run your application
-CMD ["python ./telegram_bot/aiogram_run.py"]
+# CMD ["python"," /app/telegram_bot/aiogram_run.py"]
+# CMD ["ls", "-la", "/app/telegram_bot"]
+
+CMD ["python", "/app/telegram_bot/aiogram_run.py"]
 

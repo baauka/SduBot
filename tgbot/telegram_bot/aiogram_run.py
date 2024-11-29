@@ -40,7 +40,7 @@ gpt_router = Router()
 async def handle_gpt_query(message: Message):
     user_query = message.text.strip()
     try:
-        response = gpt_handler.ask(user_query, concatenated)
+        response = gpt_handler.ask(user_query)
         await message.answer(response)
     except Exception as e:
         await message.answer(f"Error processing your request: {e}")
