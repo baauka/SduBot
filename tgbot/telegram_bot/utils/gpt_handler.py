@@ -45,14 +45,14 @@ class GPTHandler:
         self.qa_prompt = ChatPromptTemplate.from_messages([
             ("system", self.system_prompt),
             MessagesPlaceholder("chat_history"),
-            ("human", "{input}")
+            ("human", "{input}"),
         ])
 
         # Contextualization prompt template
         self.contextualization_prompt = ChatPromptTemplate.from_messages([
             ("system", self.contextualization_prompt),
             MessagesPlaceholder("chat_history"),
-            ("human", "{input}")
+            ("human", "{input}"),
         ])
 
         # Create chains
@@ -75,13 +75,13 @@ class GPTHandler:
         :param query: User's question.
         :return: AI's response.
         """
-        # Append the user's query as a HumanMessage
-        self.chat_history.append(HumanMessage(content=query))
         
         # Process the query through the RAG chain
         result = self.rag_chain.invoke({"input": query, "chat_history": self.chat_history})
         response = result["answer"]
 
+        # Append the user's query as a HumanMessage
+        self.chat_history.append(HumanMessage(content=query))
         # Append the assistant's response as a SystemMessage
         self.chat_history.append(SystemMessage(content=response))
 

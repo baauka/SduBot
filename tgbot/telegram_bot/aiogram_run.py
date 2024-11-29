@@ -16,19 +16,19 @@ EMBEDDING_MODEL = config('EMBEDDING_MODEL')
 CHAT_MODEL = config('CHAT_MODEL')
 SYSTEM_PROMPT = config('SYSTEM_PROMPT')
 CONTEXT_Q__SYSTEM_PROMPT = config('CONTEXT_Q__SYSTEM_PROMPT')
-
 # Vector database path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 pdf_dir = os.path.join(current_dir, "db_pdf")
 persistent_directory = os.path.join(current_dir, "db", "chroma_db_with_metadata")
+
 
 gpt_handler = GPTHandler(
     persistent_directory=persistent_directory,
     pdf_directory=pdf_dir,
     embedding_model=EMBEDDING_MODEL,
     chat_model=CHAT_MODEL,
-    system_prompt=SYSTEM_PROMPT,
-    contextualization_prompt=CONTEXT_Q__SYSTEM_PROMPT
+    system_prompt=(SYSTEM_PROMPT),
+    contextualization_prompt=(CONTEXT_Q__SYSTEM_PROMPT)
 )
 
 
@@ -63,6 +63,6 @@ async def main():
         await dp.start_polling(bot)
     finally:
         await pg_db.disconnect()
-
+        print("Disconnect")
 if __name__ == "__main__":
     asyncio.run(main())
